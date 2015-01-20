@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>VIVVO als SPARQL-Endpoint</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <style type="text/css">
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body { font-family: 'Droid Serif'; }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+# Was ist VIVO?
+
+- Forschungsinformationssystem mit Daten über Organisationen, Personen und Veröffentlichungen.
+- Daten werden als RDF gespeichert.
+
+---
+
+# Was ist RDF
+- RDF = **R**esource **D**escription **F**ramework  
+- Ressourcen sehen aus wie URLs.
+- Beschreibung immer als Tripel - Subjekt Prädikat Objekt
+- Subjekt und Prädikat ist immer eine Ressource, Objekt kann eine Ressource oder ein Literal sein.
+- Bedeutungsdefinition in Form von **Ontologien** (Sammlung von Ressourcen, die jeweils eine bestimmte Bedeutung haben)
+- Unabhängig von Repräsentation (Notation). Repräsentationen sind u.a. XML, N3 und Turtle.
+
+---
+
+# Beispiel-RDF in Turtle
+
+```Turtle
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+<http://vivo.mydomain.edu/individual/p00000105> 
+    a foaf:Person ;
+    rdfs:label "Schmidt, JH" ;
+    vcard:hasName <http://vivo.mydomain.edu/individual/i000001058> .
+```
+
+---
+
+# Erklärung Turtle
+- Präfix statt kompletter URL
+
+```Turtle
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+<http://vivo.mydomain.edu/individual/p00000105>  
+    a foaf:Person ;
+```
+
+statt
+
+```Turtle
+<http://vivo.mydomain.edu/individual/p00000105>  
+    a <http://xmlns.com/foaf/0.1/Person> ;
+```
+
+---
+
+# Erklärung Turtle
+- Punkt am Ende des Statements
+- Semikolon, um sich auf das selbe Subjekt zu beziehen.
+
+```Turtle
+<http://vivo.mydomain.edu/individual/p00000105> 
+    a          foaf:Person ;
+    rdfs:label "Schmidt, JH" .
+```
+
+statt
+
+```Turtle
+<http://vivo.mydomain.edu/individual/p00000105> a          foaf:Person .
+<http://vivo.mydomain.edu/individual/p00000105> rdfs:label "Schmidt, JH" .
+```
+
+---
+
+# Was ist SPARQL?
+- Abfragesprache für RDF-Daten.  
+- SPARQL =  **S**PARQL **P**rotocol **a**nd **R**DF **Q**uery **L**anguage
+- Benutzt Turtle-Repräsentation
+- Ähnlich SQL
+- Vorteile ggü. SQL: 
+  - Keine feste Tabellen-Struktur notwendig
+  - Alles mit allem verknüpfbar
+  - Externe SPARQL-Quellen
+
+---
+
+# Die erste SPARQL-Query
+## Gib mir alle Personen
+
+```SPARQL
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+SELECT ?p
+WHERE {
+    ?p a foaf:Person
+}
+LIMIT 10
+```
+
+- Platzhalter beginnen mit `?`
+- Platzhalter in SELECT sind Spalten-Überschriften
+
+---
+
+# Die erste SPARQL-Query
+## Ergebnis
+```
+---------------------------------------------------
+| p                                               |
+===================================================
+| <http://vivo.mydomain.edu/individual/p00000084> |
+| <http://vivo.mydomain.edu/individual/p00000104> |
+| <http://vivo.mydomain.edu/individual/p00000585> |
+| <http://vivo.mydomain.edu/individual/p00000212> |
+| <http://vivo.mydomain.edu/individual/p00000111> |
+| <http://vivo.mydomain.edu/individual/p00000083> |
+| <http://vivo.mydomain.edu/individual/p00000123> |
+| <http://vivo.mydomain.edu/individual/p00000177> |
+| <http://vivo.mydomain.edu/individual/p00000043> |
+| <http://vivo.mydomain.edu/individual/p00000138> |
+---------------------------------------------------
+```
+Wir sehen hier die *Ressourcen*, das *R* in RDF. 
+
+---
+
+# Query nach Personen-Namen
+Was ist, wenn wir die Namen wollen?
+
+```SPARQL
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX vcard: <http://www.w3.org/2006/vcard/ns#>
+SELECT ?nachname ?vorname ?p
+WHERE {
+    ?p          a                   foaf:Person ;
+                vcard:hasName       ?vcardname .
+    ?vcardname  vcard:familyName    ?nachname ;
+                vcard:givenName     ?vorname .
+}
+LIMIT 10
+```
+
+- Beispiel für Turtle-Notation: Semikolon, um sich auf das selbe Subjekt zu beziehen.
+- Alle Bedingungen müssen erfüllt sein
+- Platzhalter können auch nur intern verwendet werden. 
+- `?vcardname` ist _gebunden_: alle Werte von `?vcardname` müssen gleich sein.
+- `?vcardname` ist sowohl subjekt als auch objekt in verschiedenen statements.
+
+---
+
+# Welche Organisation hat wie viele Mitglieder?
+## Abfrageergebnis
+
+```
+---------------------------------------------------------------------------------
+| organization_name                                                | num_people |
+=================================================================================
+| "Know Center"                                                    | 1          |
+| "Alexander von Humboldt Institut für Internet und Gesellschaft"  | 88         |
+| "ZBW – Deutsche Zentralbibliothek für Wirtschaftswissenschaften" | 4          |
+---------------------------------------------------------------------------------
+```
+
+---
+
+# Welche Organisation hat wie viele Mitglieder?
+## Query
+
+```SPARQL
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX vcard: <http://www.w3.org/2006/vcard/ns#>
+PREFIX vivo: <http://vivoweb.org/ontology/core#> 
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT (SAMPLE(?olabel) as ?organization_name) (COUNT(?org) as ?num_people)
+WHERE {
+    ?p  a               foaf:Person .
+    ?relation vivo:relates  ?p, ?org .
+    ?org a foaf:Organization ;
+         rdfs:label ?olabel .
+}
+GROUP BY ?org
+```
+
+- `GROUP BY` zum Gruppieren
+- `SAMPLE` ist notwendig, weil `?org` aggregiert ist und immer den selben Wert liefert.
+
+---
+
+# In welchem Jahr wurde wie viel publiziert?
+
+```
+PREFIX bibo: <http://purl.org/ontology/bibo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX vivo: <http://vivoweb.org/ontology/core#>
+
+SELECT ?pub_year (COUNT(?publication) AS ?num_publications)
+WHERE {
+    ?publication a                  bibo:Article ;
+                 rdfs:label         ?title ;
+                 vivo:dateTimeValue ?dateRel .
+    ?dateRel     a                  vivo:DateTimeValue ;
+                 vivo:dateTime      ?dateValue .
+
+}
+GROUP BY (YEAR(?dateValue) as ?pub_year)
+ORDER BY ?pub_year
+```
+
+---
+
+# Wer hat wie viel publiziert?
+
+## Publikationsliste, ein Autor pro Zeile
+```
+PREFIX bibo: <http://purl.org/ontology/bibo/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX vcard: <http://www.w3.org/2006/vcard/ns#>
+PREFIX vivo: <http://vivoweb.org/ontology/core#> 
+
+SELECT ?fName ?gName ?title
+WHERE {
+    ?authorship a                  vivo:Authorship ;
+                vivo:relates         ?author, ?publication .
+    ?publication a                  bibo:Article ;
+                rdfs:label         ?title .
+    ?author     a             foaf:Person ;
+        vcard:hasName   ?vcardname .
+    ?vcardname  vcard:familyName    ?fName ;
+                vcard:givenName     ?gName .
+
+}
+```
+
+---
+
+## Publikationsliste, Autoren zusammengefasst
+```
+SELECT (GROUP_CONCAT(CONCAT(?fName, ", ", ?gName); separator="; ")  AS ?authors)
+       (SAMPLE(?title) as ?publication_name)
+WHERE {
+    ?authorship a                  vivo:Authorship ;
+                vivo:relates         ?author, ?publication .
+    ?publication a                  bibo:Article ;
+                rdfs:label         ?title .
+    ?author     a             foaf:Person ;
+        vcard:hasName   ?vcardname .
+    ?vcardname  vcard:familyName    ?fName ;
+                vcard:givenName     ?gName .
+
+}
+GROUP BY ?publication
+```
+
+---
+
+# Wer publiziert mit wem?
+```
+SELECT CONCAT(?fName1, ", ", ?gName1) CONCAT(?fName2, ", ", ?gName2)
+WHERE {
+    ?authorship1 a                  vivo:Authorship ;
+                vivo:relates         ?author1, ?publication .
+    ?authorship2 a                  vivo:Authorship ;
+                vivo:relates         ?author2, ?publication .
+
+    ?publication a                  bibo:Article ;
+                rdfs:label         ?title .
+    ?author1     a             foaf:Person ;
+        vcard:hasName   ?vcardname1 .
+    ?vcardname1  vcard:familyName    ?fName1 ;
+                vcard:givenName     ?gName1 .
+
+?author2     a             foaf:Person ;
+        vcard:hasName   ?vcardname2 .
+    ?vcardname2  vcard:familyName    ?fName2 ;
+                vcard:givenName     ?gName2 .
+
+FILTER(?author1 != ?author2)
+}
+LIMIT 50
+```
+
+---
+
+
+# Wer publiziert am meisten mit wem?
+``` 
+
+SELECT ?firstauthor ?secondauthor (count(?author1) as ?pub_count)
+WHERE {
+    ?authorship1 a                  vivo:Authorship ;
+                vivo:relates         ?author1, ?publication .
+    ?authorship2 a                  vivo:Authorship ;
+                vivo:relates         ?author2, ?publication .
+
+    ?publication a                  bibo:Article ;
+                rdfs:label         ?title .
+    ?author1     a             foaf:Person ;
+        vcard:hasName   ?vcardname1 .
+    ?vcardname1  vcard:familyName    ?fName1 ;
+                vcard:givenName     ?gName1 .
+
+?author2     a             foaf:Person ;
+        vcard:hasName   ?vcardname2 .
+    ?vcardname2  vcard:familyName    ?fName2 ;
+                vcard:givenName     ?gName2 .
+
+FILTER(?author1 != ?author2)
+}
+GROUP BY (CONCAT(?fName1, ", ", ?gName1) as ?firstauthor) (CONCAT(?fName2, ", ", ?gName2) as ?secondauthor)
+order by desc(?pub_count)
+LIMIT 50
+```
+
+Optional `HAVING (?pub_count > 1)`
+
+Sortieren nach pub_count, in Relation zur Anzahl von Publikationen
+
+
+
+---
+
+
+
+
+    </textarea>
+    <script src="https://gnab.github.io/remark/downloads/remark-latest.min.js">
+    </script>
+    <script>
+      var slideshow = remark.create();
+    </script>
+  </body>
+</html>
