@@ -1,0 +1,23 @@
+# Publikationsliste, Autoren zusammengefasst
+
+PREFIX bibo: <http://purl.org/ontology/bibo/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX vcard: <http://www.w3.org/2006/vcard/ns#>
+PREFIX vivo: <http://vivoweb.org/ontology/core#> 
+
+SELECT (GROUP_CONCAT(CONCAT(?fName, ", ", ?gName); separator="; ")  AS ?authors)
+       (SAMPLE(?title) as ?publication_name)
+WHERE {
+    ?authorship a                   vivo:Authorship ;
+                vivo:relates        ?author, ?publication .
+    ?publication a                  bibo:Article ;
+                rdfs:label          ?title .
+    ?author     a                   foaf:Person ;
+                vcard:hasName       ?vcardname .
+    ?vcardname  vcard:familyName    ?fName ;
+                vcard:givenName     ?gName .
+
+}
+GROUP BY ?publication
+LIMIT 10

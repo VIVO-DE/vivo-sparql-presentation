@@ -1,0 +1,19 @@
+# Wie viele Personen gehören zu einer Organisation?
+
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX vcard: <http://www.w3.org/2006/vcard/ns#>
+PREFIX vivo: <http://vivoweb.org/ontology/core#> 
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT (SAMPLE(?olabel) as ?organization_name) (COUNT(?org) as ?num_people)
+WHERE {
+    ?p        a             foaf:Person .
+    ?relation vivo:relates  ?p, ?org .
+    ?org      a             foaf:Organization ;
+              rdfs:label    ?olabel .
+}
+GROUP BY ?org
+
+# `GROUP BY` zum Gruppieren
+# `SAMPLE` ist notwendig, weil `?org` aggregiert ist und immer den selben Wert liefert
+# `AS` um einen neuen Platzhalter-Namen zu vergeben

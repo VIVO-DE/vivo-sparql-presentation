@@ -1,0 +1,17 @@
+# In welchem Jahr wurde wie viel publiziert?
+
+PREFIX bibo: <http://purl.org/ontology/bibo/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX vivo: <http://vivoweb.org/ontology/core#>
+
+SELECT ?pub_year (COUNT(?publication) AS ?num_publications)
+WHERE {
+    ?publication a                  bibo:Article ;
+                 rdfs:label         ?title ;
+                 vivo:dateTimeValue ?dateRel .
+    ?dateRel     a                  vivo:DateTimeValue ;
+                 vivo:dateTime      ?dateValue .
+
+}
+GROUP BY (YEAR(?dateValue) as ?pub_year)
+ORDER BY ?pub_year

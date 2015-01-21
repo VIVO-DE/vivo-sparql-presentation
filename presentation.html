@@ -14,6 +14,20 @@
         font-weight: normal;
       }
       .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+      table { font-family: 'Ubuntu Mono'; border-collapse: collapse; }
+      th { 
+        text-align: left;
+        border-bottom:solid 1px black;
+        padding: 2px 5px;
+      }
+      tbody tr:nth-child(even) {
+        background: #ccc;
+      }
+      td {
+        padding: 5px 8px;
+      }
+
+
     </style>
   </head>
   <body>
@@ -119,22 +133,21 @@ LIMIT 10
 
 # Die erste SPARQL-Query
 ## Ergebnis
-```
----------------------------------------------------
+
 | p                                               |
-===================================================
-| <http://vivo.mydomain.edu/individual/p00000084> |
-| <http://vivo.mydomain.edu/individual/p00000104> |
-| <http://vivo.mydomain.edu/individual/p00000585> |
-| <http://vivo.mydomain.edu/individual/p00000212> |
-| <http://vivo.mydomain.edu/individual/p00000111> |
-| <http://vivo.mydomain.edu/individual/p00000083> |
-| <http://vivo.mydomain.edu/individual/p00000123> |
-| <http://vivo.mydomain.edu/individual/p00000177> |
-| <http://vivo.mydomain.edu/individual/p00000043> |
-| <http://vivo.mydomain.edu/individual/p00000138> |
----------------------------------------------------
-```
+|-------------------------------------------------|
+| `<http://vivo.mydomain.edu/individual/p00000084>` |
+| `<http://vivo.mydomain.edu/individual/p00000104>` |
+| `<http://vivo.mydomain.edu/individual/p00000585>` |
+| `<http://vivo.mydomain.edu/individual/p00000212>` |
+| `<http://vivo.mydomain.edu/individual/p00000111>` |
+| `<http://vivo.mydomain.edu/individual/p00000083>` |
+| `<http://vivo.mydomain.edu/individual/p00000123>` |
+| `<http://vivo.mydomain.edu/individual/p00000177>` |
+| `<http://vivo.mydomain.edu/individual/p00000043>` |
+| `<http://vivo.mydomain.edu/individual/p00000138>` |
+
+
 Wir sehen hier die *Ressourcen*, das *R* in RDF. 
 
 ---
@@ -163,178 +176,109 @@ LIMIT 10
 
 ---
 
-# Welche Organisation hat wie viele Mitglieder?
-## Abfrageergebnis
+# Query nach Personen-Namen
 
-```
----------------------------------------------------------------------------------
-| organization_name                                                | num_people |
-=================================================================================
-| "Know Center"                                                    | 1          |
-| "Alexander von Humboldt Institut für Internet und Gesellschaft"  | 88         |
-| "ZBW – Deutsche Zentralbibliothek für Wirtschaftswissenschaften" | 4          |
----------------------------------------------------------------------------------
-```
+nachname      | vorname       | p                                               
+----------------|---------------|------------------------------------------------
+"Noy Natalya" | "F"           | `<http://vivo.mydomain.edu/individual/p00000585>` 
+"Onn Kow"     | "Weng"        | `<http://vivo.mydomain.edu/individual/p00000212>` 
+"Anderson"    | "CW"          | `<http://vivo.mydomain.edu/individual/p00000111>` 
+"Strohmaier"  | "Markus"      | `<http://vivo.mydomain.edu/individual/p00000123>` 
+"Maurer"      | "Lisa"        | `<http://vivo.mydomain.edu/individual/p00000177>` 
+"Kroell"      | "Mark"        | `<http://vivo.mydomain.edu/individual/p00000138>` 
+"Hofmair"     | "P"           | `<http://vivo.mydomain.edu/individual/p00000475>` 
+"Balzert"     | "Silke"       | `<http://vivo.mydomain.edu/individual/p00000262>` 
+"Tschinkel"   | "Gerwald"     | `<http://vivo.mydomain.edu/individual/p00000310>` 
+
 
 ---
 
 # Welche Organisation hat wie viele Mitglieder?
-## Query
 
-```SPARQL
-PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-PREFIX vcard: <http://www.w3.org/2006/vcard/ns#>
-PREFIX vivo: <http://vivoweb.org/ontology/core#> 
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-SELECT (SAMPLE(?olabel) as ?organization_name) (COUNT(?org) as ?num_people)
-WHERE {
-    ?p  a               foaf:Person .
-    ?relation vivo:relates  ?p, ?org .
-    ?org a foaf:Organization ;
-         rdfs:label ?olabel .
-}
-GROUP BY ?org
-```
 
-- `GROUP BY` zum Gruppieren
-- `SAMPLE` ist notwendig, weil `?org` aggregiert ist und immer den selben Wert liefert.
+organization_name                                                | num_people
+-----------------------------------------------------------------|-------------
+"Know Center"                                                    | 1
+"Alexander von Humboldt Institut für Internet und Gesellschaft"  | 88
+"ZBW – Deutsche Zentralbibliothek für Wirtschaftswissenschaften" | 4
+
 
 ---
 
 # In welchem Jahr wurde wie viel publiziert?
 
-```
-PREFIX bibo: <http://purl.org/ontology/bibo/>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX vivo: <http://vivoweb.org/ontology/core#>
-
-SELECT ?pub_year (COUNT(?publication) AS ?num_publications)
-WHERE {
-    ?publication a                  bibo:Article ;
-                 rdfs:label         ?title ;
-                 vivo:dateTimeValue ?dateRel .
-    ?dateRel     a                  vivo:DateTimeValue ;
-                 vivo:dateTime      ?dateValue .
-
-}
-GROUP BY (YEAR(?dateValue) as ?pub_year)
-ORDER BY ?pub_year
-```
+pub_year | num_publications
+---------|------------------
+2004     | 17
+2005     | 45
+2006     | 52
+2007     | 55
+2008     | 58
+2009     | 86
+2010     | 59
+2011     | 44
+2012     | 49
+2013     | 73
+2014     | 29
 
 ---
 
-# Wer hat wie viel publiziert?
+# Publikationslisten
 
-## Publikationsliste, ein Autor pro Zeile
-```
-PREFIX bibo: <http://purl.org/ontology/bibo/>
-PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX vcard: <http://www.w3.org/2006/vcard/ns#>
-PREFIX vivo: <http://vivoweb.org/ontology/core#> 
 
-SELECT ?fName ?gName ?title
-WHERE {
-    ?authorship a                  vivo:Authorship ;
-                vivo:relates         ?author, ?publication .
-    ?publication a                  bibo:Article ;
-                rdfs:label         ?title .
-    ?author     a             foaf:Person ;
-        vcard:hasName   ?vcardname .
-    ?vcardname  vcard:familyName    ?fName ;
-                vcard:givenName     ?gName .
+authors | publication_name
+--- | ---
+"Christl, Conny; Lindstaedt Stefanie, N; Kump, Barbara"                                                      | "Die gezielte Nutzung innerbetrieblicher Ressourcen für effektiven Kompetenztransfer"
+"Zibold, D; Hubmann-Haidvogel, A; Stern, Hermann; Weichselbraun, Albert; Scharl, Arno; Wohlgenannt, Gerhard" | "Media Watch on Climate Change: Building and Visualizing Contextualized Information Spaces"
+"Ley, Tobias; Kump, Barbara; Bonestroo, W; Lindstaedt Stefanie, N"                                           | "Learn@Work: Competency Advancement with Learning Templates"
+"Ulbrich, Armin; Ausserhofer, A"                                                                             | "Aspects of Integrating E-Learning Systems With Knowledge Management"
+"Voss, H"                                                                                                    | " Crowdsourcing. "
+"Burgsteiner, H; Steinbauer, G; Kroell, Mark; Leopold, A"                                                    | "Movement Prediction From Real-World Images Using A Liquid State Machine"
 
-}
-```
-
----
-
-## Publikationsliste, Autoren zusammengefasst
-```
-SELECT (GROUP_CONCAT(CONCAT(?fName, ", ", ?gName); separator="; ")  AS ?authors)
-       (SAMPLE(?title) as ?publication_name)
-WHERE {
-    ?authorship a                  vivo:Authorship ;
-                vivo:relates         ?author, ?publication .
-    ?publication a                  bibo:Article ;
-                rdfs:label         ?title .
-    ?author     a             foaf:Person ;
-        vcard:hasName   ?vcardname .
-    ?vcardname  vcard:familyName    ?fName ;
-                vcard:givenName     ?gName .
-
-}
-GROUP BY ?publication
-```
 
 ---
 
 # Wer publiziert mit wem?
-```
-SELECT CONCAT(?fName1, ", ", ?gName1) CONCAT(?fName2, ", ", ?gName2)
-WHERE {
-    ?authorship1 a                  vivo:Authorship ;
-                vivo:relates         ?author1, ?publication .
-    ?authorship2 a                  vivo:Authorship ;
-                vivo:relates         ?author2, ?publication .
 
-    ?publication a                  bibo:Article ;
-                rdfs:label         ?title .
-    ?author1     a             foaf:Person ;
-        vcard:hasName   ?vcardname1 .
-    ?vcardname1  vcard:familyName    ?fName1 ;
-                vcard:givenName     ?gName1 .
 
-?author2     a             foaf:Person ;
-        vcard:hasName   ?vcardname2 .
-    ?vcardname2  vcard:familyName    ?fName2 ;
-                vcard:givenName     ?gName2 .
+first_author    | second_author
+----------------|-------------------
+"Ademi, Ilir"            | "Mayer, Harald"
+"Ademi, Ilir"            | "Stocker, Alexander"
+"Ademi, Ilir"            | "Halb, Wolfgang"
+"Ademi, Ilir"            | "Mülner, Helmut"
+"Aehnelt, M"             | "Beham, Guenther"
+"Aehnelt, M"             | "de Hoog, Robert"
+"Aehnelt, M"             | "Ebert, M"
+"Aehnelt, M"             | "Paschen, A"
+"Afzal Muhammad, Tanvir" | "Andrews, Keith"
+"Afzal Muhammad, Tanvir" | "Stocker, Alexander"
+"Afzal Muhammad, Tanvir" | "Maurer, Hermann"
+"Afzal Muhammad, Tanvir" | "Hoefler, Patrick"
 
-FILTER(?author1 != ?author2)
-}
-LIMIT 50
-```
 
 ---
 
 
 # Wer publiziert am meisten mit wem?
-``` 
-
-SELECT ?firstauthor ?secondauthor (count(?author1) as ?pub_count)
-WHERE {
-    ?authorship1 a                  vivo:Authorship ;
-                vivo:relates         ?author1, ?publication .
-    ?authorship2 a                  vivo:Authorship ;
-                vivo:relates         ?author2, ?publication .
-
-    ?publication a                  bibo:Article ;
-                rdfs:label         ?title .
-    ?author1     a             foaf:Person ;
-        vcard:hasName   ?vcardname1 .
-    ?vcardname1  vcard:familyName    ?fName1 ;
-                vcard:givenName     ?gName1 .
-
-?author2     a             foaf:Person ;
-        vcard:hasName   ?vcardname2 .
-    ?vcardname2  vcard:familyName    ?fName2 ;
-                vcard:givenName     ?gName2 .
-
-FILTER(?author1 != ?author2)
-}
-GROUP BY (CONCAT(?fName1, ", ", ?gName1) as ?firstauthor) (CONCAT(?fName2, ", ", ?gName2) as ?secondauthor)
-order by desc(?pub_count)
-LIMIT 50
-```
-
-Optional `HAVING (?pub_count > 1)`
-
-Sortieren nach pub_count, in Relation zur Anzahl von Publikationen
 
 
+firstauthor              | secondauthor             | pub_count
+-------------------------|--------------------------|------------
+"Granitzer, Michael"     | "Sabol, Vedran"          | 39
+"Sabol, Vedran"          | "Granitzer, Michael"     | 39
+"Kienreich, Wolfgang"    | "Sabol, Vedran"          | 31
+"Sabol, Vedran"          | "Kienreich, Wolfgang"    | 31
+"Granitzer, Michael"     | "Kienreich, Wolfgang"    | 28
+"Kienreich, Wolfgang"    | "Granitzer, Michael"     | 28
+"Granitzer, Michael"     | "Kern, Roman"            | 22
+"Kern, Roman"            | "Granitzer, Michael"     | 22
+"Granitzer, Michael"     | "Juffinger, Andreas"     | 20
+"Juffinger, Andreas"     | "Granitzer, Michael"     | 20
+"Granitzer, Michael"     | "Seifert, Christin"      | 19
+"Seifert, Christin"      | "Granitzer, Michael"     | 19
 
----
 
 
 

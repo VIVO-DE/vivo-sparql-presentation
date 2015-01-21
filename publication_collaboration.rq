@@ -1,0 +1,33 @@
+# Wer publiziert mit wem?
+
+PREFIX bibo: <http://purl.org/ontology/bibo/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX vcard: <http://www.w3.org/2006/vcard/ns#>
+PREFIX vivo: <http://vivoweb.org/ontology/core#> 
+
+SELECT DISTINCT (CONCAT(?fName1, ", ", ?gName1) AS ?first_author) 
+                (CONCAT(?fName2, ", ", ?gName2) AS ?second_author)
+WHERE {
+    ?authorship1 a                  vivo:Authorship ;
+                 vivo:relates       ?author1, ?publication .
+    ?authorship2 a                  vivo:Authorship ;
+                 vivo:relates       ?author2, ?publication .
+
+    ?publication a                  bibo:Article ;
+                 rdfs:label         ?title .
+    ?author1     a                  foaf:Person ;
+                 vcard:hasName      ?vcardname1 .
+    ?vcardname1  vcard:familyName   ?fName1 ;
+                 vcard:givenName    ?gName1 .
+
+    ?author2     a                  foaf:Person ;
+                 vcard:hasName      ?vcardname2 .
+    ?vcardname2  vcard:familyName   ?fName2 ;
+                 vcard:givenName    ?gName2 .
+
+FILTER(?author1 != ?author2)
+}
+ORDER BY ?fName1
+LIMIT 50
+

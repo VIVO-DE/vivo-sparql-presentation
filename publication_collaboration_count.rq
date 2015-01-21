@@ -1,0 +1,39 @@
+# Wer publiziert am meisten mit wem?
+
+PREFIX bibo: <http://purl.org/ontology/bibo/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX vcard: <http://www.w3.org/2006/vcard/ns#>
+PREFIX vivo: <http://vivoweb.org/ontology/core#> 
+
+SELECT ?firstauthor ?secondauthor (count(?author1) AS ?pub_count)
+WHERE {
+    ?authorship1 a                  vivo:Authorship ;
+                 vivo:relates       ?author1, ?publication .
+    ?authorship2 a                  vivo:Authorship ;
+                 vivo:relates       ?author2, ?publication .
+
+    ?publication a                  bibo:Article ;
+                 rdfs:label         ?title .
+    ?author1     a                  foaf:Person ;
+                 vcard:hasName      ?vcardname1 .
+    ?vcardname1  vcard:familyName   ?fName1 ;
+                 vcard:givenName    ?gName1 .
+
+    ?author2     a                  foaf:Person ;
+                 vcard:hasName      ?vcardname2 .
+    ?vcardname2  vcard:familyName   ?fName2 ;
+                 vcard:givenName    ?gName2 .
+
+FILTER(?author1 != ?author2)
+}
+GROUP BY (CONCAT(?fName1, ", ", ?gName1) AS ?firstauthor) 
+         (CONCAT(?fName2, ", ", ?gName2) AS ?secondauthor)
+ORDER BY DESC(?pub_count)
+LIMIT 50
+
+# Optional HAVING (?pub_count > 1), um "einmal-Kooperationen" auszuschließen
+
+# TODO nach Aufzählung ?author1 ?author2 nicht noch ?author2 ?author1 listen
+
+# Idee: Sortieren nach pub_count, in Relation zur Anzahl von Publikationen eines Autors, um prozentuale zusammenarbeit festzustellen
