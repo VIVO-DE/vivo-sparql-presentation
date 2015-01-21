@@ -14,6 +14,7 @@
         font-weight: normal;
       }
       .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+      a:visited {color:blue;}
       table { font-family: 'Ubuntu Mono'; border-collapse: collapse; }
       th { 
         text-align: left;
@@ -41,12 +42,12 @@
 ---
 
 # Was ist RDF
-- RDF = **R**esource **D**escription **F**ramework  
+- [RDF](http://de.wikipedia.org/wiki/Resource_Description_Framework) = **R**esource **D**escription **F**ramework  
 - Ressourcen sehen aus wie URLs.
 - Beschreibung immer als Tripel - Subjekt Prädikat Objekt
 - Subjekt und Prädikat ist immer eine Ressource, Objekt kann eine Ressource oder ein Literal sein.
 - Bedeutungsdefinition in Form von **Ontologien** (Sammlung von Ressourcen, die jeweils eine bestimmte Bedeutung haben)
-- Unabhängig von Repräsentation (Notation). Repräsentationen sind u.a. XML, N3 und Turtle.
+- Unabhängig von Repräsentation (Notation). Repräsentationen sind u.a. XML, N3 und [Turtle](http://de.wikipedia.org/wiki/Turtle_%28Syntax%29)
 
 ---
 
@@ -104,7 +105,7 @@ statt
 
 # Was ist SPARQL?
 - Abfragesprache für RDF-Daten.  
-- SPARQL =  **S**PARQL **P**rotocol **a**nd **R**DF **Q**uery **L**anguage
+- [SPARQL](http://de.wikipedia.org/wiki/SPARQL) =  **S**PARQL **P**rotocol **a**nd **R**DF **Q**uery **L**anguage
 - Benutzt Turtle-Repräsentation
 - Ähnlich SQL
 - Vorteile ggü. SQL: 
@@ -280,8 +281,21 @@ firstauthor              | secondauthor             | pub_count
 "Seifert, Christin"      | "Granitzer, Michael"     | 19
 
 
+---
 
+class: center, middle
 
+# Weitere Ideen?
+
+---
+
+# Links
+
+- [VIVO](http://www.vivoweb.org/)
+- [FUSEKI](http://jena.apache.org/documentation/serving_data/index.html) (SPARQL-Server)
+- Weitere [SPARQL-Queries für VIVO](http://mconlon17.github.io/sparql/)
+
+---
 
     </textarea>
     <script src="https://gnab.github.io/remark/downloads/remark-latest.min.js">
