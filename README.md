@@ -13,6 +13,6 @@ Für Python 3 statt dessen:
 
     python3 -m http.server 8082 
 
-Dann kann die Präsentation unter folgender URL abgerufen werden: http://localhost:8088/presentation.html
+Dann kann die Präsentation unter folgender URL abgerufen werden: http://localhost:8082/presentation.html
 
 Präsentationssoftware ist [Remark](http://remarkjs.com/).
