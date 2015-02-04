@@ -15,6 +15,7 @@
       }
       .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
       a:visited {color:blue;}
+
       table { font-family: 'Ubuntu Mono'; border-collapse: collapse; }
       th { 
         text-align: left;
@@ -26,6 +27,13 @@
       }
       td {
         padding: 5px 8px;
+      }
+
+      .queryLink {
+        display: block;
+        text-align: right;
+        font-size:80%;
+        font-style: italic;
       }
 
 
@@ -233,6 +241,8 @@ pub_year | num_publications
 2013     | 73
 2014     | 29
 
+.queryLink[ [Query](sparql_html/yearly_publications.rq.html) ]
+
 ---
 
 # Publikationslisten
@@ -247,6 +257,8 @@ authors | publication_name
 "Voss, H"                                                                                                    | " Crowdsourcing. "
 "Burgsteiner, H; Steinbauer, G; Kroell, Mark; Leopold, A"                                                    | "Movement Prediction From Real-World Images Using A Liquid State Machine"
 
+
+.queryLink[ [Query](sparql_html/publications_multi_authors.rq.html) ]
 
 ---
 
@@ -268,6 +280,7 @@ first_author    | second_author
 "Afzal Muhammad, Tanvir" | "Maurer, Hermann"
 "Afzal Muhammad, Tanvir" | "Hoefler, Patrick"
 
+.queryLink[ [Query](sparql_html/publication_collaboration.rq.html) ]
 
 ---
 
@@ -290,6 +303,7 @@ firstauthor              | secondauthor             | pub_count
 "Granitzer, Michael"     | "Seifert, Christin"      | 19
 "Seifert, Christin"      | "Granitzer, Michael"     | 19
 
+.queryLink[ [Query](sparql_html/publication_collaboration_count.rq.html) ]
 
 ---
 
