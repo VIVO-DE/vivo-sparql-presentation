@@ -5,7 +5,11 @@ Diese Präsentation gibt eine kurze einführungt in VIVO, RDF und SPARQL und zei
 ## Präsentation ansehen
 Zum Präsentieren die HTML-Datei auf beliebigen Webserver ablegen und im Browser aufrufen. Wichtig ist, dass eine Internet-Verbindung besteht, um Stil-, Font- und JavaScript-Dateien laden zu können.
 
-Falls kein Webserver, aber ein Linux-System mit Python vorhanden ist, folgende Kommadozeile verwenden:
+### Webserver Windows
+Auf einem Windows-System können Sie den Webserver [moongoose](http://code.google.com/p/mongoose/) verwenden.
+
+### Webserver Linux
+Auf einem Linux-System mit Python können Sie, folgende Kommadozeile verwenden:
 
     python -m SimpleHTTPServer 8082 
 
